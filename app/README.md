@@ -1,32 +1,35 @@
-# React + TypeScript + Vite
+# AmaVida — app
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+App React (Vite + TypeScript + Tailwind v4) com todas as telas do AmaVida. Ver o README na raiz do repositório para contexto do projeto.
 
-Currently, two official plugins are available:
+## Rodando
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Build
+
+```bash
+npm run build   # tsc -b && vite build
+npm run preview # serve o build de produção localmente
+```
+
+## Estrutura
+
+```
+src/
+  state/AppStateContext.tsx   # estado global em memória (perfil, remédios, contatos, check-ins)
+  lib/mockData.ts             # unidades de saúde, programa municipal, log do cuidador
+  onboarding/                 # wizard de 3 passos (cadastro do cuidador → convite → confirmação do idoso)
+  screens/                    # Início, Remédios, Saúde, Família, Emergência
+  components/layout/          # ElderShell (guard de onboarding + bottom nav), BottomNav
+  components/shared/          # HealthUnitCard, CheckinHighlight, MicButton
+  caregiver/CaregiverPanel.tsx
+  partner/PartnerPage.tsx
+```
+
+## Estado atual
+
+Dados mockados em memória — sem persistência (recarregar a página reseta o onboarding). Sem Supabase, sem autenticação real, sem geolocalização real, conforme escopo do `AmaVida_Prompt_Lovable_Frontend_v2.md`.
