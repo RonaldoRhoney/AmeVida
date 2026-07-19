@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
+import { supabase } from "../lib/supabaseClient";
 
 const BENEFITS = [
   "Seu município é atendido com prioridade na fila de revisão",
@@ -7,13 +8,44 @@ const BENEFITS = [
   "Custo zero para prefeituras e ONGs no piloto",
 ];
 
+const TIPO_OPTIONS = [
+  { value: "prefeitura", label: "Prefeitura" },
+  { value: "secretaria_saude", label: "Secretaria de Saúde" },
+  { value: "ong", label: "ONG / Associação" },
+  { value: "empresa_local", label: "Empresa local" },
+  { value: "outro", label: "Outro" },
+];
+
 export default function PartnerPage() {
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setSubmitting(true);
+    setError(null);
+
+    const form = e.currentTarget;
+    const data = new FormData(form);
+
+    const { error: insertError } = await supabase.from("partner_leads").insert({
+      nome_instituicao: String(data.get("nome_instituicao")),
+      municipio: String(data.get("municipio")),
+      estado: String(data.get("estado")).toUpperCase(),
+      tipo_instituicao: String(data.get("tipo_instituicao")),
+      email_contato: String(data.get("email_contato")),
+    });
+
+    setSubmitting(false);
+
+    if (insertError) {
+      setError("Não foi possível enviar agora. Tente de novo em instantes.");
+      return;
+    }
+
     setSent(true);
-    (e.target as HTMLFormElement).reset();
+    form.reset();
   }
 
   return (
@@ -48,6 +80,7 @@ export default function PartnerPage() {
           <label className="flex flex-col gap-1.5 text-sm font-bold text-rio">
             Nome da instituição
             <input
+              name="nome_instituicao"
               type="text"
               placeholder="Ex.: Secretaria de Saúde de Bacuri"
               required
@@ -58,6 +91,7 @@ export default function PartnerPage() {
             <label className="flex flex-col gap-1.5 text-sm font-bold text-rio">
               Município
               <input
+                name="municipio"
                 type="text"
                 placeholder="Ex.: Bacuri"
                 required
@@ -67,6 +101,7 @@ export default function PartnerPage() {
             <label className="flex flex-col gap-1.5 text-sm font-bold text-rio">
               Estado
               <input
+                name="estado"
                 type="text"
                 placeholder="Ex.: MA"
                 maxLength={2}
@@ -78,6 +113,7 @@ export default function PartnerPage() {
           <label className="flex flex-col gap-1.5 text-sm font-bold text-rio">
             Tipo de instituição
             <select
+              name="tipo_instituicao"
               required
               defaultValue=""
               className="rounded-xl border border-rio/15 bg-paper px-3 py-2.5 text-sm font-normal focus:outline-2 focus:outline-mata"
@@ -85,16 +121,17 @@ export default function PartnerPage() {
               <option value="" disabled>
                 Selecione
               </option>
-              <option>Prefeitura</option>
-              <option>Secretaria de Saúde</option>
-              <option>ONG / Associação</option>
-              <option>Empresa local</option>
-              <option>Outro</option>
+              {TIPO_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
             </select>
           </label>
           <label className="flex flex-col gap-1.5 text-sm font-bold text-rio">
             E-mail de contato
             <input
+              name="email_contato"
               type="email"
               placeholder="voce@instituicao.gov.br"
               required
@@ -103,12 +140,15 @@ export default function PartnerPage() {
           </label>
           <button
             type="submit"
-            className="mt-1 rounded-2xl bg-rio py-3.5 font-bold text-white transition-colors hover:bg-mata"
+            disabled={submitting}
+            className="mt-1 rounded-2xl bg-rio py-3.5 font-bold text-white transition-colors hover:bg-mata disabled:opacity-60"
           >
-            Quero ser parceiro
+            {submitting ? "Enviando..." : "Quero ser parceiro"}
           </button>
           <span className="min-h-[18px] text-center text-sm font-bold text-mata">
-            {sent ? "Recebido! Este é só um preview — no produto real isso chega direto para a equipe AmaVida." : " "}
+            {sent && "Recebido! Nossa equipe entra em contato em breve."}
+            {error && <span className="text-urucum">{error}</span>}
+            {!sent && !error && " "}
           </span>
         </form>
       </div>

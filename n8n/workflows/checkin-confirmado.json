@@ -1,0 +1,105 @@
+{
+  "name": "AmaVida — Check-in confirmado",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "checkin-confirmado",
+        "options": {}
+      },
+      "id": "webhook-checkin",
+      "name": "Webhook: novo checkin",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-400, 0],
+      "webhookId": "checkin-confirmado"
+    },
+    {
+      "parameters": {
+        "jsCode": "const row = $input.first().json.body.record;\nreturn [{ json: { elder_id: row.elder_id, data: row.data, status: row.status, checkin_id: row.id } }];"
+      },
+      "id": "extract-record",
+      "name": "Extrai dados do checkin",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-180, 0]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.supabaseUrl }}/rest/v1/profiles",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "id", "value": "=eq.{{ $json.elder_id }}" },
+            { "name": "select", "value": "nome" }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{ $json.supabaseKey }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $json.supabaseKey }}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "note-placeholder",
+      "name": "Buscar nome do idoso (configurar credencial Supabase)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [60, 0],
+      "notes": "Placeholder: configurar HTTP Request real pra Supabase REST (profiles + caregiver_links) com a service_role key salva como credencial n8n, não hardcoded no workflow."
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "mensagem",
+              "value": "=Check-in confirmado do idoso {{ $json.elder_id }} em {{ $json.data }} — status: {{ $json.status }}."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "format-message",
+      "name": "Formata mensagem",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [300, 0]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "canal", "value": "PLACEHOLDER — nenhuma credencial de WhatsApp/e-mail/push configurada ainda" },
+            { "name": "destinatario", "value": "cuidador vinculado ao idoso (via caregiver_links)" },
+            { "name": "conteudo", "value": "={{ $json.mensagem }}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "send-placeholder",
+      "name": "Enviar notificação (placeholder — trocar por WhatsApp/E-mail/Push)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [540, 0]
+    }
+  ],
+  "connections": {
+    "Webhook: novo checkin": {
+      "main": [[{ "node": "Extrai dados do checkin", "type": "main", "index": 0 }]]
+    },
+    "Extrai dados do checkin": {
+      "main": [[{ "node": "Buscar nome do idoso (configurar credencial Supabase)", "type": "main", "index": 0 }]]
+    },
+    "Buscar nome do idoso (configurar credencial Supabase)": {
+      "main": [[{ "node": "Formata mensagem", "type": "main", "index": 0 }]]
+    },
+    "Formata mensagem": {
+      "main": [[{ "node": "Enviar notificação (placeholder — trocar por WhatsApp/E-mail/Push)", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" }
+}

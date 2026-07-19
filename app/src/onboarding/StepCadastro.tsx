@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
-import { useAppState } from "../state/AppStateContext";
+import { useAuth } from "../state/AuthContext";
+import { supabase } from "../lib/supabaseClient";
 
 interface MedicationDraft {
   key: string;
@@ -9,11 +10,11 @@ interface MedicationDraft {
 }
 
 interface Props {
-  onNext: () => void;
+  onNext: (token: string, elderNome: string) => void;
 }
 
 export default function StepCadastro({ onNext }: Props) {
-  const { setElderProfile, addMedication, setEmergencyContacts } = useAppState();
+  const { session } = useAuth();
 
   const [nome, setNome] = useState("");
   const [cidade, setCidade] = useState("");
@@ -23,6 +24,8 @@ export default function StepCadastro({ onNext }: Props) {
   ]);
   const [contatoNome, setContatoNome] = useState("");
   const [contatoTelefone, setContatoTelefone] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   function updateMedRow(key: string, field: keyof Omit<MedicationDraft, "key">, value: string) {
     setMedRows((rows) => rows.map((r) => (r.key === key ? { ...r, [field]: value } : r)));
@@ -39,19 +42,41 @@ export default function StepCadastro({ onNext }: Props) {
     setMedRows((rows) => rows.filter((r) => r.key !== key));
   }
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setElderProfile({ nome: nome.trim() || "o idoso", cidade: cidade.trim(), estado: estado.trim() });
+    if (!session) return;
+    setSubmitting(true);
+    setError(null);
 
-    medRows
+    const elderNome = nome.trim() || "o idoso";
+    const medications = medRows
       .filter((row) => row.nome.trim())
-      .forEach((row) => addMedication({ nome: row.nome.trim(), horario: row.horario, instrucao: row.instrucao.trim() }));
+      .map((row) => ({ nome: row.nome.trim(), horario: row.horario, instrucao: row.instrucao.trim() }));
+    const emergencyContacts = contatoNome.trim()
+      ? [{ nome: contatoNome.trim(), telefone: contatoTelefone.trim(), relacao: null }]
+      : [];
 
-    if (contatoNome.trim()) {
-      setEmergencyContacts([{ nome: contatoNome.trim(), telefone: contatoTelefone.trim() }]);
+    const { data, error: insertError } = await supabase
+      .from("pending_invites")
+      .insert({
+        caregiver_id: session.user.id,
+        elder_nome: elderNome,
+        elder_cidade: cidade.trim() || null,
+        elder_estado: estado.trim() || null,
+        medications,
+        emergency_contacts: emergencyContacts,
+      })
+      .select("token")
+      .single();
+
+    setSubmitting(false);
+
+    if (insertError || !data) {
+      setError(insertError?.message ?? "Não foi possível salvar o cadastro. Tente de novo.");
+      return;
     }
 
-    onNext();
+    onNext(data.token, elderNome);
   }
 
   return (
@@ -154,11 +179,14 @@ export default function StepCadastro({ onNext }: Props) {
         />
       </div>
 
+      {error && <p className="text-sm font-bold text-urucum">{error}</p>}
+
       <button
         type="submit"
-        className="mt-1.5 w-full rounded-2xl bg-mata py-4 font-bold text-white transition-colors hover:bg-rio"
+        disabled={submitting}
+        className="mt-1.5 w-full rounded-2xl bg-mata py-4 font-bold text-white transition-colors hover:bg-rio disabled:opacity-60"
       >
-        Continuar
+        {submitting ? "Salvando..." : "Continuar"}
       </button>
     </form>
   );

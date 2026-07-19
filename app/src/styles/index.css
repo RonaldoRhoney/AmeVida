@@ -15,25 +15,27 @@
   --font-sans: "Atkinson Hyperlegible", system-ui, sans-serif;
 }
 
-html {
-  scroll-behavior: smooth;
-}
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
 
-body {
-  margin: 0;
-  background: var(--color-paper);
-  color: var(--color-ink);
-  font-family: var(--font-sans);
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-}
+  body {
+    margin: 0;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
 
-h1,
-h2,
-h3 {
-  font-family: var(--font-serif);
-  font-weight: 600;
-  color: var(--color-rio);
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    color: var(--color-rio);
+  }
 }
 
 /* Modo Fácil: fonte maior e alto contraste, aplicado via classe no elemento raiz do app do idoso */

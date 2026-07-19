@@ -1,10 +1,7 @@
-import { createContext, useContext, useReducer, type ReactNode } from "react";
-
-export interface ElderProfile {
-  nome: string;
-  cidade: string;
-  estado: string;
-}
+import { createContext, useContext, useState, type ReactNode } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "../lib/supabaseClient";
+import { useAuth } from "./AuthContext";
 
 export interface Medication {
   id: string;
@@ -15,6 +12,7 @@ export interface Medication {
 }
 
 export interface EmergencyContact {
+  id: string;
   nome: string;
   telefone: string;
 }
@@ -24,129 +22,128 @@ export interface TodayCheckin {
   hora: string;
 }
 
-interface AppState {
-  elder: ElderProfile | null;
+interface AppStateContextValue {
   medications: Medication[];
   emergencyContacts: EmergencyContact[];
-  onboardingComplete: boolean;
+  todayCheckin: TodayCheckin | null;
+  loading: boolean;
   easyMode: boolean;
   offlineMode: boolean;
-  todayCheckin: TodayCheckin | null;
-}
-
-const defaultMedications: Omit<Medication, "id" | "tomadoHoje">[] = [
-  { nome: "Losartana", horario: "08:00", instrucao: "em jejum" },
-  { nome: "Metformina", horario: "13:00", instrucao: "após almoço" },
-  { nome: "Sinvastatina", horario: "20:00", instrucao: "antes de dormir" },
-];
-
-const defaultContacts: EmergencyContact[] = [
-  { nome: "Marta (filha)", telefone: "(91) 90000-0000" },
-  { nome: "João (neto)", telefone: "(91) 90000-0001" },
-];
-
-const initialState: AppState = {
-  elder: null,
-  medications: [],
-  emergencyContacts: [],
-  onboardingComplete: false,
-  easyMode: false,
-  offlineMode: false,
-  todayCheckin: null,
-};
-
-type Action =
-  | { type: "SET_ELDER_PROFILE"; payload: ElderProfile }
-  | { type: "ADD_MEDICATION"; payload: Omit<Medication, "id" | "tomadoHoje"> }
-  | { type: "REMOVE_MEDICATION"; payload: { id: string } }
-  | { type: "TOGGLE_DOSE_TAKEN"; payload: { id: string } }
-  | { type: "SET_EMERGENCY_CONTACTS"; payload: EmergencyContact[] }
-  | { type: "COMPLETE_ONBOARDING" }
-  | { type: "TOGGLE_EASY_MODE" }
-  | { type: "TOGGLE_OFFLINE_MODE" }
-  | { type: "CONFIRM_CHECKIN" };
-
-function reducer(state: AppState, action: Action): AppState {
-  switch (action.type) {
-    case "SET_ELDER_PROFILE":
-      return { ...state, elder: action.payload };
-    case "ADD_MEDICATION":
-      return {
-        ...state,
-        medications: [
-          ...state.medications,
-          { ...action.payload, id: crypto.randomUUID(), tomadoHoje: false },
-        ],
-      };
-    case "REMOVE_MEDICATION":
-      return {
-        ...state,
-        medications: state.medications.filter((m) => m.id !== action.payload.id),
-      };
-    case "TOGGLE_DOSE_TAKEN":
-      return {
-        ...state,
-        medications: state.medications.map((m) =>
-          m.id === action.payload.id ? { ...m, tomadoHoje: !m.tomadoHoje } : m,
-        ),
-      };
-    case "SET_EMERGENCY_CONTACTS":
-      return { ...state, emergencyContacts: action.payload };
-    case "COMPLETE_ONBOARDING": {
-      const medications =
-        state.medications.length > 0
-          ? state.medications
-          : defaultMedications.map((m) => ({ ...m, id: crypto.randomUUID(), tomadoHoje: false }));
-      const emergencyContacts =
-        state.emergencyContacts.length > 0 ? state.emergencyContacts : defaultContacts;
-      return { ...state, onboardingComplete: true, medications, emergencyContacts };
-    }
-    case "TOGGLE_EASY_MODE":
-      return { ...state, easyMode: !state.easyMode };
-    case "TOGGLE_OFFLINE_MODE":
-      return { ...state, offlineMode: !state.offlineMode };
-    case "CONFIRM_CHECKIN":
-      return {
-        ...state,
-        todayCheckin: {
-          confirmado: true,
-          hora: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
-        },
-      };
-    default:
-      return state;
-  }
-}
-
-interface AppStateContextValue extends AppState {
-  setElderProfile: (profile: ElderProfile) => void;
-  addMedication: (medication: Omit<Medication, "id" | "tomadoHoje">) => void;
-  removeMedication: (id: string) => void;
   toggleDoseTaken: (id: string) => void;
-  setEmergencyContacts: (contacts: EmergencyContact[]) => void;
-  completeOnboarding: () => void;
+  confirmCheckin: () => void;
+  triggerEmergency: () => Promise<boolean>;
   toggleEasyMode: () => void;
   toggleOfflineMode: () => void;
-  confirmCheckin: () => void;
 }
 
 const AppStateContext = createContext<AppStateContextValue | undefined>(undefined);
 
 export function AppStateProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const { session } = useAuth();
+  const elderId = session?.user.id;
+  const queryClient = useQueryClient();
+
+  const [easyMode, setEasyMode] = useState(false);
+  const [offlineMode, setOfflineMode] = useState(false);
+
+  const { data: medicationRows, isLoading: loadingMeds } = useQuery({
+    queryKey: ["medication_reminders", elderId],
+    enabled: !!elderId,
+    queryFn: async () => {
+      const [{ data: reminders }, { data: confirmations }] = await Promise.all([
+        supabase
+          .from("medication_reminders")
+          .select("id, nome_remedio, horario, instrucao")
+          .eq("elder_id", elderId)
+          .order("horario"),
+        supabase
+          .from("medication_confirmations")
+          .select("reminder_id, confirmado_em")
+          .gte("confirmado_em", new Date().toISOString().slice(0, 10)),
+      ]);
+      const confirmedIds = new Set((confirmations ?? []).map((c) => c.reminder_id));
+      return (reminders ?? []).map(
+        (r): Medication => ({
+          id: r.id,
+          nome: r.nome_remedio,
+          horario: r.horario.slice(0, 5),
+          instrucao: r.instrucao ?? "",
+          tomadoHoje: confirmedIds.has(r.id),
+        }),
+      );
+    },
+  });
+
+  const { data: contactRows } = useQuery({
+    queryKey: ["emergency_contacts", elderId],
+    enabled: !!elderId,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("emergency_contacts")
+        .select("id, nome, telefone")
+        .eq("elder_id", elderId);
+      return (data ?? []) as EmergencyContact[];
+    },
+  });
+
+  const { data: checkinRow } = useQuery({
+    queryKey: ["checkins", elderId],
+    enabled: !!elderId,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("checkins")
+        .select("created_at")
+        .eq("elder_id", elderId)
+        .eq("data", new Date().toISOString().slice(0, 10))
+        .maybeSingle();
+      if (!data) return null;
+      const hora = new Date(data.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+      return { confirmado: true, hora } as TodayCheckin;
+    },
+  });
+
+  async function toggleDoseTaken(id: string) {
+    const med = medicationRows?.find((m) => m.id === id);
+    if (!med) return;
+
+    if (med.tomadoHoje) {
+      await supabase
+        .from("medication_confirmations")
+        .delete()
+        .eq("reminder_id", id)
+        .gte("confirmado_em", new Date().toISOString().slice(0, 10));
+    } else {
+      await supabase.from("medication_confirmations").insert({ reminder_id: id });
+    }
+    queryClient.invalidateQueries({ queryKey: ["medication_reminders", elderId] });
+  }
+
+  async function confirmCheckin() {
+    if (!elderId) return;
+    await supabase.from("checkins").insert({ elder_id: elderId, status: "estou bem" });
+    queryClient.invalidateQueries({ queryKey: ["checkins", elderId] });
+  }
+
+  async function triggerEmergency() {
+    if (!elderId) return false;
+    const { error } = await supabase
+      .from("emergency_events")
+      .insert({ elder_id: elderId, confirmado: true });
+    return !error;
+  }
 
   const value: AppStateContextValue = {
-    ...state,
-    setElderProfile: (profile) => dispatch({ type: "SET_ELDER_PROFILE", payload: profile }),
-    addMedication: (medication) => dispatch({ type: "ADD_MEDICATION", payload: medication }),
-    removeMedication: (id) => dispatch({ type: "REMOVE_MEDICATION", payload: { id } }),
-    toggleDoseTaken: (id) => dispatch({ type: "TOGGLE_DOSE_TAKEN", payload: { id } }),
-    setEmergencyContacts: (contacts) =>
-      dispatch({ type: "SET_EMERGENCY_CONTACTS", payload: contacts }),
-    completeOnboarding: () => dispatch({ type: "COMPLETE_ONBOARDING" }),
-    toggleEasyMode: () => dispatch({ type: "TOGGLE_EASY_MODE" }),
-    toggleOfflineMode: () => dispatch({ type: "TOGGLE_OFFLINE_MODE" }),
-    confirmCheckin: () => dispatch({ type: "CONFIRM_CHECKIN" }),
+    medications: medicationRows ?? [],
+    emergencyContacts: contactRows ?? [],
+    todayCheckin: checkinRow ?? null,
+    loading: loadingMeds,
+    easyMode,
+    offlineMode,
+    toggleDoseTaken,
+    confirmCheckin,
+    triggerEmergency,
+    toggleEasyMode: () => setEasyMode((v) => !v),
+    toggleOfflineMode: () => setOfflineMode((v) => !v),
   };
 
   return <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>;

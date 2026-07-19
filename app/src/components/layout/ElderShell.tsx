@@ -1,20 +1,22 @@
-import { Navigate, Outlet, Link } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "../../state/AuthContext";
 import { useAppState } from "../../state/AppStateContext";
 import BottomNav from "./BottomNav";
 
 export default function ElderShell() {
-  const { onboardingComplete, easyMode, offlineMode } = useAppState();
+  const { session, profile, loading } = useAuth();
+  const { easyMode, offlineMode } = useAppState();
 
-  if (!onboardingComplete) {
-    return <Navigate to="/" replace />;
-  }
+  if (loading) return null;
+  if (!session) return <Navigate to="/" replace />;
+  if (profile && profile.role !== "idoso") return <Navigate to="/cuidador" replace />;
 
   return (
     <div className={`flex min-h-svh flex-col bg-paper text-ink ${easyMode ? "easy-mode" : ""}`}>
       {offlineMode && (
-        <div className="bg-paper-2 px-4 py-2 text-center text-xs text-[#4a564f]">
-          Sem internet agora. Seus remédios e o botão de emergência continuam funcionando — os dados
-          serão enviados assim que a conexão voltar.
+        <div className="bg-urucum/[0.12] px-4 py-2 text-center text-xs font-semibold text-urucum">
+          Sem internet agora. O botão de emergência pode não funcionar — se precisar de ajuda, ligue
+          direto para sua família.
         </div>
       )}
 
@@ -23,12 +25,6 @@ export default function ElderShell() {
       </main>
 
       <BottomNav />
-
-      <div className="border-t border-rio/10 bg-white py-2 text-center">
-        <Link to="/cuidador" className="text-xs font-bold text-mata">
-          Ver como painel do cuidador ↗
-        </Link>
-      </div>
     </div>
   );
 }

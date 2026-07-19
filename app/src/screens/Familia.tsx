@@ -20,7 +20,7 @@ export default function Familia() {
 
       <div className="mt-4 flex flex-col gap-2.5">
         {emergencyContacts.map((contact) => (
-          <div key={contact.nome} className="flex items-center gap-3 rounded-2xl border border-rio/15 bg-white p-3.5">
+          <div key={contact.id} className="flex items-center gap-3 rounded-2xl border border-rio/15 bg-white p-3.5">
             <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-acai font-bold text-white">
               {contact.nome.charAt(0).toUpperCase()}
             </div>
