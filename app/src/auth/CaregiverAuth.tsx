@@ -40,41 +40,20 @@ export default function CaregiverAuth() {
 
   return (
     <div className="flex min-h-svh flex-col bg-paper">
-      <div className="relative overflow-hidden rounded-b-[28px] bg-gradient-to-br from-rio to-[#0e2620] px-6 pb-6 pt-7 text-center">
-        <svg
-          className="pointer-events-none absolute inset-x-0 top-2 opacity-30"
-          viewBox="0 0 400 40"
-          preserveAspectRatio="none"
-          height="40"
-        >
-          <path d="M0 20 C 70 5, 140 35, 210 20 S 340 5, 400 20" fill="none" stroke="#2F7A5E" strokeWidth="2" />
-        </svg>
-
-        <h1 className="relative font-serif text-xl font-semibold text-white">AmaVida</h1>
-        <p className="relative mx-auto mt-1 max-w-[30ch] text-[0.8rem] text-[#cfe0d8]">
+      <div className="mx-auto w-full max-w-md px-6 pb-2 pt-14 text-center">
+        <h1 className="font-serif text-[1.7rem] font-semibold tracking-tight text-rio">AmaVida</h1>
+        <p className="mx-auto mt-2 max-w-[32ch] text-[0.92rem] leading-relaxed text-[#5a6660]">
           Uma companhia digital para a pessoa idosa, sempre com a família por perto.
         </p>
-
-        <div className="relative mx-auto mt-3.5 flex w-full max-w-[300px] items-center gap-2.5 rounded-xl bg-white px-3 py-2.5 text-left shadow-[0_16px_30px_-14px_rgba(0,0,0,0.4)]">
-          <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-mata text-white">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
-              <path d="M20 6 9 17l-5-5" />
-            </svg>
-          </span>
-          <p className="text-[0.72rem] leading-snug text-[#3a4640]">
-            <strong className="text-rio">Seu Antônio: </strong>
-            confirmou que já tomou a Losartana das 8h.
-          </p>
-        </div>
-        <p className="relative mt-2 font-serif text-[0.78rem] italic text-[#a9c9bb]">
-          É alívio, não vigilância.
+        <p className="mt-3 font-serif text-[0.85rem] italic text-mata-light">
+          "Seu Antônio confirmou que já tomou a Losartana das 8h." — é alívio, não vigilância.
         </p>
       </div>
 
-      <div className="mx-auto -mt-3 w-full max-w-md flex-1 px-5 pb-8">
-        <div className="rounded-[28px] border border-rio/10 bg-white p-6 shadow-[0_20px_45px_-25px_rgba(15,40,33,0.35)]">
+      <div className="mx-auto mt-8 w-full max-w-md flex-1 px-5 pb-8">
+        <div className="rounded-[24px] border border-rio/[0.08] bg-white p-7 shadow-[0_24px_50px_-30px_rgba(22,59,51,0.25)]">
           <h2 className="text-xl">{mode === "entrar" ? "Entrar" : "Criar conta"}</h2>
-          <p className="mb-5 mt-1 text-sm text-[#5a6660]">
+          <p className="mb-6 mt-1 text-sm text-[#5a6660]">
             Acesso do cuidador — quem cadastra e acompanha o idoso.
           </p>
 
