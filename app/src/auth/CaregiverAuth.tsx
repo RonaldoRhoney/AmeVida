@@ -39,21 +39,21 @@ export default function CaregiverAuth() {
   }
 
   return (
-    <div className="flex min-h-svh flex-col bg-paper">
-      <div className="mx-auto w-full max-w-md px-6 pb-2 pt-14 text-center">
-        <h1 className="font-serif text-[1.7rem] font-semibold tracking-tight text-rio">AmaVida</h1>
+    <div className="flex min-h-svh flex-col items-center justify-center bg-paper px-6 py-8">
+      <div className="w-full max-w-md text-center">
+        <h1 className="font-serif text-[1.6rem] font-semibold tracking-tight text-rio">AmaVida</h1>
         <p className="mx-auto mt-2 max-w-[32ch] text-[0.92rem] leading-relaxed text-[#5a6660]">
           Uma companhia digital para a pessoa idosa, sempre com a família por perto.
         </p>
-        <p className="mt-3 font-serif text-[0.85rem] italic text-[#1f5c46]">
+        <p className="mt-2.5 font-serif text-[0.85rem] italic text-[#1f5c46]">
           "Seu Antônio confirmou que já tomou a Losartana das 8h." — é alívio, não vigilância.
         </p>
       </div>
 
-      <div className="mx-auto mt-8 w-full max-w-md flex-1 px-5 pb-8">
-        <div className="rounded-[24px] border border-rio/[0.08] bg-white p-7 shadow-[0_24px_50px_-30px_rgba(22,59,51,0.25)]">
+      <div className="mt-6 w-full max-w-md">
+        <div className="rounded-[24px] border border-rio/[0.08] bg-white p-6 shadow-[0_24px_50px_-30px_rgba(22,59,51,0.25)]">
           <h2 className="text-xl">{mode === "entrar" ? "Entrar" : "Criar conta"}</h2>
-          <p className="mb-6 mt-1 text-sm text-[#5a6660]">
+          <p className="mb-5 mt-1 text-sm text-[#5a6660]">
             Acesso do cuidador — quem cadastra e acompanha o idoso.
           </p>
 
@@ -73,12 +73,12 @@ export default function CaregiverAuth() {
               </button>
             </div>
           ) : (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3.5">
               <button
                 type="button"
                 onClick={handleGoogle}
                 disabled={googleLoading}
-                className="flex w-full items-center justify-center gap-3 rounded-2xl border border-rio/30 bg-white py-3.5 font-bold text-rio transition-colors hover:bg-paper-2 disabled:opacity-60"
+                className="flex w-full items-center justify-center gap-3 rounded-2xl border border-rio/30 bg-white py-3 font-bold text-rio transition-colors hover:bg-paper-2 disabled:opacity-60"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M23.52 12.27c0-.82-.07-1.6-.2-2.36H12v4.47h6.47a5.54 5.54 0 0 1-2.4 3.64v3h3.87c2.27-2.09 3.58-5.17 3.58-8.75Z" />
@@ -95,7 +95,7 @@ export default function CaregiverAuth() {
                 <span className="h-px flex-1 bg-rio/10" />
               </div>
 
-              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
                 <div className="flex flex-col gap-1.5">
                   <label htmlFor="authEmail" className="text-sm font-bold text-rio">
                     E-mail
@@ -129,7 +129,7 @@ export default function CaregiverAuth() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="mt-1 w-full rounded-2xl bg-mata py-4 font-bold text-white transition-colors hover:bg-rio disabled:opacity-60"
+                  className="mt-1 w-full rounded-2xl bg-mata py-3.5 font-bold text-white transition-colors hover:bg-rio disabled:opacity-60"
                 >
                   {submitting ? "Aguarde..." : mode === "entrar" ? "Entrar" : "Criar conta"}
                 </button>
@@ -146,7 +146,7 @@ export default function CaregiverAuth() {
           )}
         </div>
 
-        <Link to="/como-funciona" className="mt-6 block text-center text-sm font-bold text-[#5a6660]">
+        <Link to="/como-funciona" className="mt-4 block text-center text-sm font-bold text-[#5a6660]">
           Como funciona o AmaVida?
         </Link>
       </div>
