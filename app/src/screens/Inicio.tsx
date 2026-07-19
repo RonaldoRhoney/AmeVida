@@ -141,7 +141,7 @@ export default function Inicio() {
         Como funciona o AmaVida?
       </Link>
 
-      <p className="mt-6 pb-2 text-center text-xs text-[#8a938c]">© AmaVida — RhoneyInc</p>
+      <p className="mt-6 pb-2 text-center text-xs text-[#5a6660]">© AmaVida — RhoneyInc</p>
     </div>
   );
 }

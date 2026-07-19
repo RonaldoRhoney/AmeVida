@@ -55,7 +55,7 @@ export default function PartnerPage() {
       </Link>
 
       <div className="mt-4 grid gap-9 rounded-[28px] border border-rio/15 bg-paper-2 p-7 sm:grid-cols-[1.1fr_1fr] sm:p-11">
-        <div>
+        <div className="min-w-0">
           <h1 className="max-w-[16ch] text-2xl sm:text-3xl">
             Mais que dado: um canal para chegar aos idosos que a UBS não visita toda semana
           </h1>
@@ -76,7 +76,7 @@ export default function PartnerPage() {
           </ul>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3.5 rounded-2xl border border-rio/15 bg-white p-6">
+        <form onSubmit={handleSubmit} className="flex min-w-0 flex-col gap-3.5 rounded-2xl border border-rio/15 bg-white p-6">
           <label className="flex flex-col gap-1.5 text-sm font-bold text-rio">
             Nome da instituição
             <input
@@ -88,7 +88,7 @@ export default function PartnerPage() {
             />
           </label>
           <div className="grid grid-cols-[2fr_1fr] gap-3">
-            <label className="flex flex-col gap-1.5 text-sm font-bold text-rio">
+            <label className="flex min-w-0 flex-col gap-1.5 text-sm font-bold text-rio">
               Município
               <input
                 name="municipio"
@@ -98,7 +98,7 @@ export default function PartnerPage() {
                 className="rounded-xl border border-rio/15 bg-paper px-3 py-2.5 text-sm font-normal focus:outline-2 focus:outline-mata"
               />
             </label>
-            <label className="flex flex-col gap-1.5 text-sm font-bold text-rio">
+            <label className="flex min-w-0 flex-col gap-1.5 text-sm font-bold text-rio">
               Estado
               <input
                 name="estado"

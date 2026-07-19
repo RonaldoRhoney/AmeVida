@@ -54,7 +54,7 @@ export default function BottomNav() {
           to={item.to}
           className={({ isActive }) =>
             `flex flex-1 flex-col items-center gap-1 rounded-2xl px-1 py-2 text-xs font-bold transition-colors ${
-              isActive ? "text-mata" : "text-[#8a938c]"
+              isActive ? "text-mata" : "text-[#5a6660]"
             }`
           }
         >

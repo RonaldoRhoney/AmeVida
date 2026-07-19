@@ -18,6 +18,10 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    /* Evita que a página inteira role na horizontal em qualquer tela — grids e
+       flex items têm min-width:auto por padrão, então conteúdo largo dentro de
+       uma coluna força a página a alargar em vez de o texto quebrar linha. */
+    overflow-x: hidden;
   }
 
   body {
@@ -27,6 +31,14 @@
     font-family: var(--font-sans);
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* Mesmo motivo: garante que filhos de grid/flex sempre possam encolher
+     abaixo do tamanho mínimo do próprio conteúdo, deixando o texto quebrar
+     linha em vez de estourar a largura da tela em telas estreitas. */
+  * {
+    min-width: 0;
   }
 
   h1,

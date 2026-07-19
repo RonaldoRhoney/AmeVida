@@ -25,7 +25,7 @@ export default function CheckinHighlight({ elderName, message, hora, variant = "
         <p className={`mt-1 text-[0.88rem] leading-snug ${isDark ? "text-[#dce6e1]" : "text-[#3a4640]"}`}>
           {message}
         </p>
-        <small className={`mt-1.5 block text-xs ${isDark ? "text-[#9fb8ac]" : "text-[#8a938c]"}`}>
+        <small className={`mt-1.5 block text-xs ${isDark ? "text-[#9fb8ac]" : "text-[#5a6660]"}`}>
           {hora} — via AmaVida
         </small>
         <span className="mt-2 block font-serif text-[0.85rem] italic text-mata">É alívio, não vigilância.</span>

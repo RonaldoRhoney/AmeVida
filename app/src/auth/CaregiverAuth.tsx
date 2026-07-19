@@ -45,7 +45,7 @@ export default function CaregiverAuth() {
         <p className="mx-auto mt-2 max-w-[32ch] text-[0.92rem] leading-relaxed text-[#5a6660]">
           Uma companhia digital para a pessoa idosa, sempre com a família por perto.
         </p>
-        <p className="mt-3 font-serif text-[0.85rem] italic text-mata-light">
+        <p className="mt-3 font-serif text-[0.85rem] italic text-[#1f5c46]">
           "Seu Antônio confirmou que já tomou a Losartana das 8h." — é alívio, não vigilância.
         </p>
       </div>
@@ -78,7 +78,7 @@ export default function CaregiverAuth() {
                 type="button"
                 onClick={handleGoogle}
                 disabled={googleLoading}
-                className="flex w-full items-center justify-center gap-3 rounded-2xl border border-rio/15 bg-white py-3.5 font-bold text-rio transition-colors hover:bg-paper-2 disabled:opacity-60"
+                className="flex w-full items-center justify-center gap-3 rounded-2xl border border-rio/30 bg-white py-3.5 font-bold text-rio transition-colors hover:bg-paper-2 disabled:opacity-60"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M23.52 12.27c0-.82-.07-1.6-.2-2.36H12v4.47h6.47a5.54 5.54 0 0 1-2.4 3.64v3h3.87c2.27-2.09 3.58-5.17 3.58-8.75Z" />
@@ -89,7 +89,7 @@ export default function CaregiverAuth() {
                 {googleLoading ? "Aguarde..." : "Continuar com Google"}
               </button>
 
-              <div className="flex items-center gap-3 text-xs font-bold text-[#8a938c]">
+              <div className="flex items-center gap-3 text-xs font-bold text-[#5a6660]">
                 <span className="h-px flex-1 bg-rio/10" />
                 ou
                 <span className="h-px flex-1 bg-rio/10" />
@@ -106,7 +106,7 @@ export default function CaregiverAuth() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="rounded-2xl border border-rio/15 bg-white px-3.5 py-3 text-[0.95rem] focus:outline-2 focus:outline-mata"
+                    className="rounded-2xl border border-rio/30 bg-white px-3.5 py-3 text-[0.95rem] focus:outline-2 focus:outline-mata"
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
@@ -120,7 +120,7 @@ export default function CaregiverAuth() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     minLength={6}
-                    className="rounded-2xl border border-rio/15 bg-white px-3.5 py-3 text-[0.95rem] focus:outline-2 focus:outline-mata"
+                    className="rounded-2xl border border-rio/30 bg-white px-3.5 py-3 text-[0.95rem] focus:outline-2 focus:outline-mata"
                   />
                 </div>
 
